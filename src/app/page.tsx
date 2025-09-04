@@ -1,24 +1,13 @@
+"use client";
+
 import React from "react";
 import ClientProvider from "@/components/ClientProvider";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { useAuth } from "@/contexts/AuthContext";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
-export const dynamic = "force-dynamic";
-
-async function getSession() {
-  try {
-    const session = await getServerSession(authOptions);
-    return session;
-  } catch (error) {
-    console.error("Failed to get session:", error);
-    return null;
-  }
-}
-
-export default async function Page() {
-  const session = await getSession();
+export default function Page() {
+  const { user, isLoading } = useAuth();
 
   return (
     <div className="min-h-screen flex flex-col relative">
@@ -27,25 +16,46 @@ export default async function Page() {
       <main className="flex-1 flex flex-col w-full mx-auto">
         <ClientProvider>
           <div className="flex-1 flex items-start justify-center  bg-gradient-to-b from-white to-neutral-50 dark:from-neutral-900 dark:to-neutral-950">
-            {session ? (
+            {isLoading ? (
+              <div className="flex items-center justify-center min-h-screen">
+                <div className="text-center">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brandBlue-500 mx-auto"></div>
+                  <p className="mt-4 text-neutral-600 dark:text-neutral-400">Loading...</p>
+                </div>
+              </div>
+            ) : user ? (
               // Authenticated View
               <section className="max-w-7xl w-full space-y-8 animate-fade-in">
-                <h1> Welcome {session.user?.name}</h1>
+                <h1> Welcome {user.firstName || user.username}</h1>
               </section>
             ) : (
               // Marketing View
               <section className="max-w-7xl w-full space-y-8 animate-fade-in">
-                <div className="flex flex-col sm:flex-row gap-4 items-center justify-center">
-                  <h1 className="text-4xl font-bold mt-10">
-                    Welcome - Click the button below to get started
-                  </h1>
-                  <Link
-                    href="/auth/signin"
-                    className="group w-full sm:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-lg px-8 py-4 text-lg font-medium shadow-lg shadow-blue-500/20 transition-all duration-200 hover:shadow-xl hover:shadow-blue-500/30"
-                  >
-                    Get Started
-                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                  </Link>
+                <div className="text-center space-y-8">
+                  <div className="space-y-4">
+                    <h1 className="text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-brandBlue-500 to-brandBlue-700 dark:from-brandBlue-400 dark:to-brandBlue-600">
+                      Second Act
+                    </h1>
+                    <p className="text-xl text-neutral-600 dark:text-neutral-400 max-w-2xl mx-auto">
+                      The marketplace for used dance costumes. Buy, sell, and discover beautiful costumes for your next performance.
+                    </p>
+                  </div>
+                  
+                  <div className="flex flex-col sm:flex-row gap-4 items-center justify-center">
+                    <Link
+                      href="/auth/register"
+                      className="group w-full sm:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-brandBlue-500 to-brandBlue-600 hover:from-brandBlue-600 hover:to-brandBlue-700 text-white rounded-lg px-8 py-4 text-lg font-medium shadow-lg shadow-brandBlue-500/20 transition-all duration-200 hover:shadow-xl hover:shadow-brandBlue-500/30"
+                    >
+                      Get Started
+                      <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                    </Link>
+                    <Link
+                      href="/auth/login"
+                      className="w-full sm:w-auto flex items-center justify-center gap-2 border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 rounded-lg px-8 py-4 text-lg font-medium shadow-sm transition-all duration-200 hover:bg-neutral-50 dark:hover:bg-neutral-700"
+                    >
+                      Sign In
+                    </Link>
+                  </div>
                 </div>
               </section>
             )}

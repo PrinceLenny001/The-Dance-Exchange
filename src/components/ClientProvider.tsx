@@ -2,6 +2,7 @@
 
 import { ThemeProvider } from "next-themes";
 import { SessionProvider } from "next-auth/react";
+import { AuthProvider } from "@/contexts/AuthContext";
 
 export default function ClientProvider({
   children,
@@ -10,14 +11,16 @@ export default function ClientProvider({
 }) {
   return (
     <SessionProvider>
-      <ThemeProvider
-        attribute="class"
-        defaultTheme="system"
-        enableSystem
-        disableTransitionOnChange
-      >
-        {children}
-      </ThemeProvider>
+      <AuthProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {children}
+        </ThemeProvider>
+      </AuthProvider>
     </SessionProvider>
   );
 }

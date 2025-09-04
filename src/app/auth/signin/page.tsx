@@ -76,6 +76,15 @@ function SignInContent() {
 
           <div className="mt-6">
             <p className="text-center text-sm text-neutral-600 dark:text-neutral-400">
+              Don't have an account?{" "}
+              <Link
+                href="/auth/register"
+                className="font-medium text-brandBlue-600 dark:text-brandBlue-400 hover:text-brandBlue-500"
+              >
+                Create one here
+              </Link>
+            </p>
+            <p className="mt-2 text-center text-xs text-neutral-500 dark:text-neutral-500">
               By signing in, you agree to our{" "}
               <Link
                 href="https://example.com/legal"
