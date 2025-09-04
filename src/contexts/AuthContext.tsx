@@ -11,6 +11,7 @@ interface User {
   username: string | null;
   email: string | null;
   profilePictureUrl: string | null;
+  createdAt?: string;
 }
 
 interface AuthContextType {
