@@ -153,7 +153,7 @@ function LoginContent() {
               )}
             </div>
 
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-end">
               <div className="text-sm">
                 <Link
                   href="/auth/forgot-password"

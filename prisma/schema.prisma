@@ -9,22 +9,24 @@ datasource db {
 }
 
 model User {
-  id                String    @id @default(cuid())
-  firstName         String?
-  lastName          String?
-  username          String?   @unique
-  email             String?   @unique
-  emailVerified     DateTime?
-  image             String?
-  profilePictureUrl String?
-  passwordHash      String?
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
-  login             String?
-  role              UserRole  @default(user)
-  isAdmin           Boolean   @default(false)
-  accounts          Account[]
-  sessions          Session[]
+  id                    String    @id @default(cuid())
+  firstName             String?
+  lastName              String?
+  username              String?   @unique
+  email                 String?   @unique
+  emailVerified         DateTime?
+  image                 String?
+  profilePictureUrl     String?
+  passwordHash          String?
+  passwordResetToken    String?
+  passwordResetExpires  DateTime?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  login                 String?
+  role                  UserRole  @default(user)
+  isAdmin               Boolean   @default(false)
+  accounts              Account[]
+  sessions              Session[]
 }
 
 model Account {
