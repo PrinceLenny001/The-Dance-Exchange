@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { CreditCard, ExternalLink, CheckCircle, AlertCircle, Loader } from "lucide-react";
 import { toast } from "react-toastify";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface StripeAccountStatus {
   hasAccount: boolean;
@@ -16,20 +17,25 @@ interface StripeAccountStatus {
 }
 
 export default function StripeConnectSetup() {
+  const { user } = useAuth();
   const [accountStatus, setAccountStatus] = useState<StripeAccountStatus | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
 
   useEffect(() => {
-    fetchAccountStatus();
-  }, []);
+    if (user?.id) {
+      fetchAccountStatus();
+    }
+  }, [user?.id]);
 
   const fetchAccountStatus = async () => {
+    if (!user?.id) return;
+    
     try {
       setIsLoading(true);
       const response = await fetch("/api/stripe/connect/account-status", {
         headers: {
-          "x-user-id": localStorage.getItem("user_id") || "",
+          "x-user-id": user.id,
         },
       });
 
@@ -47,12 +53,14 @@ export default function StripeConnectSetup() {
   };
 
   const createStripeAccount = async () => {
+    if (!user?.id) return;
+    
     try {
       setIsCreating(true);
       const response = await fetch("/api/stripe/connect/create-account", {
         method: "POST",
         headers: {
-          "x-user-id": localStorage.getItem("user_id") || "",
+          "x-user-id": user.id,
         },
       });
 

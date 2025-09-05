@@ -292,6 +292,7 @@ export default function CheckoutPage() {
                     totalAmount={calculateTotal()}
                     shippingAddress={shippingAddress}
                     items={items}
+                    userId={user?.id || ""}
                   />
                 </div>
               )}

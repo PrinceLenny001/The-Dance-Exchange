@@ -20,6 +20,7 @@ interface PaymentFormProps {
   totalAmount: number;
   shippingAddress: any;
   items: any[];
+  userId: string;
 }
 
 function PaymentForm({
@@ -30,6 +31,7 @@ function PaymentForm({
   totalAmount,
   shippingAddress,
   items,
+  userId,
 }: PaymentFormProps) {
   const stripe = useStripe();
   const elements = useElements();
@@ -49,6 +51,7 @@ function PaymentForm({
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "x-user-id": userId,
         },
         body: JSON.stringify({
           amount: Math.round(totalAmount * 100), // Convert to cents
@@ -175,6 +178,7 @@ interface StripeElementsProps {
   totalAmount: number;
   shippingAddress: any;
   items: any[];
+  userId: string;
 }
 
 export default function StripeElements({
@@ -185,6 +189,7 @@ export default function StripeElements({
   totalAmount,
   shippingAddress,
   items,
+  userId,
 }: StripeElementsProps) {
   const [mounted, setMounted] = useState(false);
 
@@ -214,6 +219,7 @@ export default function StripeElements({
         totalAmount={totalAmount}
         shippingAddress={shippingAddress}
         items={items}
+        userId={userId}
       />
     </Elements>
   );
