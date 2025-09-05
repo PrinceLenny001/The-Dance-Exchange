@@ -60,8 +60,10 @@ export default function CheckoutPage() {
   }, [user, items, router]);
 
   const calculateShipping = () => {
-    const subtotal = getTotalPrice();
-    return subtotal >= 100 ? 0 : 10;
+    // Calculate shipping based on individual item shipping costs
+    return items.reduce((total, item) => {
+      return total + (item.shippingCost * item.quantity);
+    }, 0);
   };
 
   const calculateTotal = () => {
@@ -304,28 +306,46 @@ export default function CheckoutPage() {
 
                 <div className="space-y-4">
                   {items.map((item) => (
-                    <div key={item.id} className="flex items-center gap-3">
-                      <div className="w-12 h-12 bg-neutral-100 dark:bg-neutral-700 rounded-lg flex items-center justify-center">
-                        {item.imageUrl ? (
-                          <img
-                            src={item.imageUrl}
-                            alt={item.title}
-                            className="w-full h-full object-cover rounded-lg"
-                          />
-                        ) : (
-                          <Package className="h-6 w-6 text-neutral-400" />
-                        )}
+                    <div key={item.id} className="space-y-2">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 bg-neutral-100 dark:bg-neutral-700 rounded-lg flex items-center justify-center">
+                          {item.imageUrl ? (
+                            <img
+                              src={item.imageUrl}
+                              alt={item.title}
+                              className="w-full h-full object-cover rounded-lg"
+                            />
+                          ) : (
+                            <Package className="h-6 w-6 text-neutral-400" />
+                          )}
+                        </div>
+                        <div className="flex-1">
+                          <h4 className="font-medium text-neutral-900 dark:text-white text-sm">
+                            {item.title}
+                          </h4>
+                          <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                            {item.size} • {item.condition}
+                          </p>
+                        </div>
+                        <div className="text-sm font-medium text-neutral-900 dark:text-white">
+                          ${item.price.toFixed(2)}
+                        </div>
                       </div>
-                      <div className="flex-1">
-                        <h4 className="font-medium text-neutral-900 dark:text-white text-sm">
-                          {item.title}
-                        </h4>
-                        <p className="text-xs text-neutral-500 dark:text-neutral-400">
-                          {item.size} • {item.condition}
-                        </p>
-                      </div>
-                      <div className="text-sm font-medium text-neutral-900 dark:text-white">
-                        ${item.price.toFixed(2)}
+                      
+                      {/* Shipping details for this item */}
+                      <div className="ml-15 text-xs text-neutral-500 dark:text-neutral-400 bg-neutral-50 dark:bg-neutral-700/50 rounded-lg p-2">
+                        <div className="flex justify-between items-center">
+                          <span>
+                            <strong>Shipping:</strong> {item.shippingMethod}
+                            {item.shippingCost === 0 && " (Free)"}
+                          </span>
+                          <span>
+                            {item.shippingCost === 0 ? "Free" : `$${item.shippingCost.toFixed(2)}`}
+                          </span>
+                        </div>
+                        <div className="text-xs text-neutral-400 dark:text-neutral-500 mt-1">
+                          Est. delivery: {item.estimatedDelivery}
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -344,6 +364,14 @@ export default function CheckoutPage() {
                         {calculateShipping() === 0 ? 'Free' : `$${calculateShipping().toFixed(2)}`}
                       </span>
                     </div>
+                    
+                    {/* Show shipping method summary if all items have same shipping method */}
+                    {items.length > 0 && items.every(item => item.shippingMethod === items[0].shippingMethod) && (
+                      <div className="text-xs text-neutral-500 dark:text-neutral-400 bg-neutral-50 dark:bg-neutral-700/50 rounded-lg p-2">
+                        <strong>Shipping Method:</strong> {items[0].shippingMethod}
+                        {items[0].shippingCost === 0 && " (Free pickup)"}
+                      </div>
+                    )}
 
                     <hr className="border-neutral-200 dark:border-neutral-700" />
 

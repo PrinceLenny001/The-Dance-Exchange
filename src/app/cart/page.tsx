@@ -41,9 +41,10 @@ export default function CartPage() {
   };
 
   const calculateShipping = () => {
-    // Simple shipping calculation - free over $100, otherwise $10
-    const subtotal = getTotalPrice();
-    return subtotal >= 100 ? 0 : 10;
+    // Calculate shipping based on individual item shipping costs
+    return items.reduce((total, item) => {
+      return total + (item.shippingCost * item.quantity);
+    }, 0);
   };
 
   const calculateTotal = () => {
@@ -146,8 +147,24 @@ export default function CartPage() {
                             <span>•</span>
                             <span>Condition: {item.condition}</span>
                           </div>
-                          <div className="text-sm text-neutral-500 dark:text-neutral-400">
+                          <div className="text-sm text-neutral-500 dark:text-neutral-400 mb-2">
                             Sold by @{item.seller.username}
+                          </div>
+                          
+                          {/* Shipping Information */}
+                          <div className="text-sm text-neutral-600 dark:text-neutral-300 bg-neutral-50 dark:bg-neutral-700/50 rounded-lg p-2">
+                            <div className="flex justify-between items-center">
+                              <span>
+                                <strong>Shipping:</strong> {item.shippingMethod}
+                                {item.shippingCost === 0 && " (Free)"}
+                              </span>
+                              <span className="font-medium">
+                                {item.shippingCost === 0 ? "Free" : `$${item.shippingCost.toFixed(2)}`}
+                              </span>
+                            </div>
+                            <div className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
+                              Est. delivery: {item.estimatedDelivery}
+                            </div>
                           </div>
                         </div>
                         <div className="text-right">

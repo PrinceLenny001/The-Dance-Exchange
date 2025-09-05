@@ -181,6 +181,9 @@ function CostumeDetailContent() {
       condition: costume.condition,
       imageUrl: costume.images.find(img => img.isPrimary)?.imageUrl || costume.images[0]?.imageUrl || "",
       quantity: 1,
+      shippingCost: Number(costume.shippingCost || 0),
+      shippingMethod: costume.shippingMethod || "Standard Shipping",
+      estimatedDelivery: costume.estimatedDelivery || "3-5 business days",
       seller: {
         id: costume.seller.id,
         username: costume.seller.username,

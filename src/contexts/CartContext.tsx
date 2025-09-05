@@ -12,6 +12,9 @@ interface CartItem {
   condition: string;
   imageUrl: string;
   quantity: number;
+  shippingCost: number;
+  shippingMethod: string;
+  estimatedDelivery: string;
   seller: {
     id: string;
     username: string;
