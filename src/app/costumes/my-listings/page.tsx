@@ -16,7 +16,7 @@ interface CostumeImage {
 interface Costume {
   id: string;
   title: string;
-  price: number;
+  price: string | number; // Prisma Decimal comes as string
   size: string;
   condition: string;
   status: string;
@@ -255,7 +255,7 @@ function MyListingsContent() {
                     <div className="space-y-2 mb-4">
                       <div className="flex items-center justify-between">
                         <span className="text-2xl font-bold text-brandBlue-600 dark:text-brandBlue-400">
-                          ${costume.price.toFixed(2)}
+                          ${Number(costume.price).toFixed(2)}
                         </span>
                         <span className="text-sm text-neutral-500 dark:text-neutral-400">
                           {costume.size}

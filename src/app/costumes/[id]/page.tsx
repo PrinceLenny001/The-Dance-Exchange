@@ -30,7 +30,7 @@ interface Costume {
   id: string;
   title: string;
   description: string;
-  price: number;
+  price: string | number; // Prisma Decimal comes as string
   size: string;
   condition: string;
   status: string;
@@ -234,7 +234,7 @@ function CostumeDetailContent() {
                   {costume.title}
                 </h1>
                 <div className="flex items-center gap-4 text-2xl font-bold text-brandBlue-600 dark:text-brandBlue-400">
-                  ${costume.price.toFixed(2)}
+                  ${Number(costume.price).toFixed(2)}
                 </div>
               </div>
 
