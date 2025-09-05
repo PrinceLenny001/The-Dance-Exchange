@@ -1,0 +1,35 @@
+VERCEL ENVIRONMENT VARIABLES TO ADD
+====================================
+
+Go to your Vercel dashboard > Settings > Environment Variables
+Add these variables one by one:
+
+REQUIRED VARIABLES:
+------------------
+NEXTAUTH_SECRET=your-32-character-secret-here
+NEXTAUTH_URL=https://secondact.vercel.app
+DATABASE_URL=postgresql://postgres:wpXBJfxZgwYooLhZ@db.hxaurxmxrsobqgctrihc.supabase.co:5432/postgres
+NEXT_PUBLIC_SUPABASE_URL=https://hxaurxmxrsobqgctrihc.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh4YXVyeG14cnNvYnFnY3RyaWhjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcwMzE3OTYsImV4cCI6MjA3MjYwNzc5Nn0.ekxVB6covhSXMnn7IAr7Kg4uwQcImWF6jGPNCLUPf4
+
+STRIPE VARIABLES:
+----------------
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_live_51QrVqGFaZWv3fFv1oyMI1qKZ3hgDf1de8kNy8PX9hvOFwxtTEMF6YGi3pHP2X4wtzQrmlDgfcrPt9zlcC16FytxX00koqn3oGw
+STRIPE_SECRET_KEY=sksk_live_51QrVqGFaZWv3fFv1SmnkN2tRTMBFG53OBh173mGmVHPyqAHybAvNedCtjGvSjhaAVmKAswxNU4FN5AjaFPgyjTIA00ESZwlJRY
+STRIPE_WEBHOOK_SECRET=whsec_your_webhook_secret_here
+STRIPE_CONNECT_CLIENT_ID=ca_your_stripe_connect_client_id_here
+STRIPE_COMMISSION_PERCENTAGE=12
+
+EMAIL VARIABLES:
+---------------
+RESEND_API_KEY=your_resend_api_key_here
+
+INSTRUCTIONS:
+1. Copy each variable name and value
+2. Paste into Vercel Environment Variables
+3. Make sure to set them for "Production" environment
+4. Redeploy your app after adding all variables
+
+GENERATE NEXTAUTH_SECRET:
+- Use: openssl rand -base64 32
+- Or any 32-character random string
