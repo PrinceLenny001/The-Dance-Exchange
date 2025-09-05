@@ -6,6 +6,7 @@ import { Metadata } from "next";
 import ClientProvider from "@/components/ClientProvider";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import { ThemeAwareToast } from "@/components/theme/ThemeAwareToast";
+import { CartProvider } from "@/contexts/CartContext";
 
 export const metadata: Metadata = {
   title: "",
@@ -25,10 +26,12 @@ export default function RootLayout({
       <body>
         <ThemeProvider defaultTheme="system" enableSystem>
           <ClientProvider>
-            <TRPCReactProvider>
-              {children}
-              <ThemeAwareToast />
-            </TRPCReactProvider>
+            <CartProvider>
+              <TRPCReactProvider>
+                {children}
+                <ThemeAwareToast />
+              </TRPCReactProvider>
+            </CartProvider>
           </ClientProvider>
         </ThemeProvider>
       </body>

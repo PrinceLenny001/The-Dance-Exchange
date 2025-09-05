@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, Heart, Share2, Star, Package, User, Calendar, Truck } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
+import { useCart } from "@/contexts/CartContext";
 import { toast } from "react-toastify";
 
 interface CostumeImage {
@@ -24,6 +25,8 @@ interface Seller {
   firstName: string | null;
   lastName: string | null;
   profilePictureUrl: string | null;
+  averageRating?: number;
+  reviewCount?: number;
 }
 
 interface Costume {
@@ -34,6 +37,9 @@ interface Costume {
   size: string;
   condition: string;
   status: string;
+  shippingCost?: string | number;
+  shippingMethod?: string;
+  estimatedDelivery?: string;
   createdAt: string;
   images: CostumeImage[];
   categories: { category: Category }[];
@@ -44,6 +50,7 @@ function CostumeDetailContent() {
   const params = useParams();
   const router = useRouter();
   const { user } = useAuth();
+  const { addItem } = useCart();
   const costumeId = params.id as string;
   
   const [costume, setCostume] = useState<Costume | null>(null);
@@ -137,6 +144,46 @@ function CostumeDetailContent() {
       FAIR: "Fair",
     };
     return labels[condition] || condition;
+  };
+
+  const renderStars = (rating: number) => {
+    return Array.from({ length: 5 }, (_, i) => (
+      <Star
+        key={i}
+        className={`h-4 w-4 ${
+          i < Math.floor(rating)
+            ? "text-yellow-400 fill-current"
+            : "text-neutral-300 dark:text-neutral-600"
+        }`}
+      />
+    ));
+  };
+
+  const handleAddToCart = () => {
+    if (!costume) return;
+
+    if (!user) {
+      toast.error("Please log in to add items to your cart");
+      router.push("/auth/login");
+      return;
+    }
+
+    if (costume.status !== "available") {
+      toast.error("This costume is no longer available");
+      return;
+    }
+
+    addItem({
+      title: costume.title,
+      price: Number(costume.price),
+      size: costume.size,
+      condition: costume.condition,
+      imageUrl: costume.images.find(img => img.isPrimary)?.imageUrl || costume.images[0]?.imageUrl || "",
+      seller: {
+        id: costume.seller.id,
+        username: costume.seller.username,
+      },
+    });
   };
 
   if (isLoading) {
@@ -294,7 +341,7 @@ function CostumeDetailContent() {
                       <User className="h-6 w-6 text-neutral-400" />
                     )}
                   </div>
-                  <div>
+                  <div className="flex-1">
                     <div className="font-medium text-neutral-900 dark:text-white">
                       {costume.seller.firstName && costume.seller.lastName
                         ? `${costume.seller.firstName} ${costume.seller.lastName}`
@@ -303,6 +350,16 @@ function CostumeDetailContent() {
                     <div className="text-sm text-neutral-500 dark:text-neutral-400">
                       @{costume.seller.username}
                     </div>
+                    {costume.seller.averageRating && (
+                      <div className="flex items-center gap-2 mt-1">
+                        <div className="flex items-center">
+                          {renderStars(costume.seller.averageRating)}
+                        </div>
+                        <span className="text-sm text-neutral-500 dark:text-neutral-400">
+                          {costume.seller.averageRating.toFixed(1)} ({costume.seller.reviewCount || 0} reviews)
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </Link>
               </div>
@@ -330,10 +387,53 @@ function CostumeDetailContent() {
                   </button>
                 </div>
 
-                <button className="w-full flex items-center justify-center gap-2 px-6 py-4 rounded-lg bg-gradient-to-r from-brandBlue-500 to-brandBlue-600 text-white shadow-lg shadow-brandBlue-500/20 transition-all hover:from-brandBlue-600 hover:to-brandBlue-700 hover:shadow-xl hover:shadow-brandBlue-500/30">
+                <button 
+                  onClick={handleAddToCart}
+                  disabled={costume.status !== "available"}
+                  className="w-full flex items-center justify-center gap-2 px-6 py-4 rounded-lg bg-gradient-to-r from-brandBlue-500 to-brandBlue-600 text-white shadow-lg shadow-brandBlue-500/20 transition-all hover:from-brandBlue-600 hover:to-brandBlue-700 hover:shadow-xl hover:shadow-brandBlue-500/30 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:from-brandBlue-500 disabled:hover:to-brandBlue-600"
+                >
                   <Package className="h-5 w-5" />
-                  Add to Cart
+                  {costume.status === "available" ? "Add to Cart" : "Sold Out"}
                 </button>
+              </div>
+
+              {/* Shipping Information */}
+              <div className="p-4 bg-neutral-50 dark:bg-neutral-800 rounded-lg">
+                <h3 className="text-lg font-semibold text-neutral-900 dark:text-white mb-3">
+                  Shipping Information
+                </h3>
+                <div className="space-y-2 text-sm">
+                  <div className="flex items-center gap-2">
+                    <Truck className="h-4 w-4 text-neutral-500 dark:text-neutral-400" />
+                    <span className="text-neutral-600 dark:text-neutral-400">
+                      {costume.shippingMethod || "Standard Shipping"}
+                    </span>
+                  </div>
+                  {costume.shippingCost && (
+                    <div className="flex items-center gap-2">
+                      <span className="text-neutral-500 dark:text-neutral-400">Cost:</span>
+                      <span className="font-medium text-neutral-900 dark:text-white">
+                        ${Number(costume.shippingCost).toFixed(2)}
+                      </span>
+                    </div>
+                  )}
+                  {costume.estimatedDelivery && (
+                    <div className="flex items-center gap-2">
+                      <span className="text-neutral-500 dark:text-neutral-400">Estimated delivery:</span>
+                      <span className="text-neutral-600 dark:text-neutral-400">
+                        {costume.estimatedDelivery}
+                      </span>
+                    </div>
+                  )}
+                  {!costume.shippingCost && !costume.shippingMethod && !costume.estimatedDelivery && (
+                    <div className="flex items-center gap-2">
+                      <Truck className="h-4 w-4 text-neutral-500 dark:text-neutral-400" />
+                      <span className="text-neutral-600 dark:text-neutral-400">
+                        Shipping available - Contact seller for details
+                      </span>
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* Additional Info */}
@@ -341,10 +441,6 @@ function CostumeDetailContent() {
                 <div className="flex items-center gap-2">
                   <Calendar className="h-4 w-4" />
                   <span>Listed on {formatDate(costume.createdAt)}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Truck className="h-4 w-4" />
-                  <span>Shipping available</span>
                 </div>
               </div>
             </div>

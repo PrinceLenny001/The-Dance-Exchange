@@ -28,22 +28,27 @@ model User {
   accounts              Account[]
   sessions              Session[]
   costumes              Costume[]
+  reviewsGiven          Review[] @relation("Reviewer")
+  reviewsReceived       Review[] @relation("Reviewee")
 }
 
 model Costume {
-  id          String        @id @default(cuid())
-  sellerId    String
-  title       String
-  description String
-  price       Decimal       @db.Decimal(10, 2)
-  size        String
-  condition   CostumeCondition
-  status      CostumeStatus @default(available)
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-  seller      User          @relation(fields: [sellerId], references: [id], onDelete: Cascade)
-  images      CostumeImage[]
-  categories  CostumeToCategory[]
+  id               String        @id @default(cuid())
+  sellerId         String
+  title            String
+  description      String
+  price            Decimal       @db.Decimal(10, 2)
+  size             String
+  condition        CostumeCondition
+  status           CostumeStatus @default(available)
+  shippingCost     Decimal?      @db.Decimal(10, 2)
+  shippingMethod   String?
+  estimatedDelivery String?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  seller           User          @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  images           CostumeImage[]
+  categories       CostumeToCategory[]
 }
 
 model CostumeCategory {
@@ -81,6 +86,22 @@ enum CostumeCondition {
 enum CostumeStatus {
   available
   sold
+}
+
+model Review {
+  id          String   @id @default(cuid())
+  orderId     String?  // Optional for now, will be used when orders are implemented
+  reviewerId  String
+  revieweeId  String
+  rating      Int      // 1-5 stars
+  comment     String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  reviewer    User     @relation("Reviewer", fields: [reviewerId], references: [id], onDelete: Cascade)
+  reviewee    User     @relation("Reviewee", fields: [revieweeId], references: [id], onDelete: Cascade)
+
+  @@index([revieweeId])
+  @@index([reviewerId])
 }
 
 model Account {
