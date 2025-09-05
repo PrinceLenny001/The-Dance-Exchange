@@ -4,9 +4,11 @@ import { verifyToken } from "@/lib/jwt";
 import { createConnectAccount, createAccountLink } from "@/lib/stripe-connect";
 
 export async function POST(request: NextRequest) {
+  let userId: string | null = null;
+  
   try {
     // Get user from headers
-    const userId = request.headers.get("x-user-id");
+    userId = request.headers.get("x-user-id");
     if (!userId) {
       return NextResponse.json(
         { error: "User not authenticated" },
