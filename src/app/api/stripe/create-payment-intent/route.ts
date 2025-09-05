@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { stripe, calculatePlatformFee } from "@/lib/stripe";
+import { stripe, calculatePlatformFee, calculateSellerAmount } from "@/lib/stripe";
+import { processMarketplacePayment } from "@/lib/stripe-connect";
+import { prisma } from "@/lib/db";
 import { z } from "zod";
 
 const createPaymentIntentSchema = z.object({
@@ -36,20 +38,53 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Calculate platform fee
-    const platformFee = calculatePlatformFee(amount);
+    // Get seller information for the first item (assuming single seller for now)
+    const firstItem = items[0];
+    const costume = await prisma.costume.findUnique({
+      where: { id: firstItem.costumeId },
+      include: { seller: true },
+    });
 
-    // Create payment intent
+    if (!costume) {
+      return NextResponse.json(
+        { error: "Costume not found" },
+        { status: 404 }
+      );
+    }
+
+    // Check if seller has Stripe account
+    if (!costume.seller.stripeAccountId) {
+      return NextResponse.json(
+        { 
+          error: "Seller has not set up payment processing",
+          message: "The seller needs to complete their payment setup before you can purchase this item.",
+        },
+        { status: 400 }
+      );
+    }
+
+    // For now, handle single seller case
+    // In a real marketplace, you'd need to handle multiple sellers differently
+    const platformFee = calculatePlatformFee(amount);
+    const sellerAmount = calculateSellerAmount(amount);
+
+    // Create payment intent with application fee (commission)
     const paymentIntent = await stripe.paymentIntents.create({
       amount,
       currency,
+      application_fee_amount: platformFee,
+      transfer_data: {
+        destination: costume.seller.stripeAccountId,
+      },
       automatic_payment_methods: {
         enabled: true,
       },
       metadata: {
         userId,
+        sellerId: costume.seller.id,
         itemCount: items.length.toString(),
         platformFee: platformFee.toString(),
+        sellerAmount: sellerAmount.toString(),
       },
       description: `Second Act - ${items.length} costume${items.length > 1 ? 's' : ''}`,
       shipping: {

@@ -20,6 +20,8 @@ model User {
   passwordHash          String?
   passwordResetToken    String?
   passwordResetExpires  DateTime?
+  stripeAccountId       String?   // Stripe Connect account ID
+  stripeAccountStatus   String?   // pending, active, restricted, etc.
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
   login                 String?

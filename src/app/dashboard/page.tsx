@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { User, Package, ShoppingCart, Heart } from "lucide-react";
 import Link from "next/link";
+import StripeConnectSetup from "@/components/StripeConnectSetup";
 
 export default function Dashboard() {
   const { user, isLoading } = useAuth();
@@ -93,6 +94,11 @@ export default function Dashboard() {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Payment Setup */}
+        <div className="mb-8">
+          <StripeConnectSetup />
         </div>
 
         {/* Quick Actions */}
