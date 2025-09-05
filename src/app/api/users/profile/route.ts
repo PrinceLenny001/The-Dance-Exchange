@@ -46,12 +46,34 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Get user stats (placeholder for now)
+    // Get user stats
+    const [costumeCount, salesCount, reviewsData] = await Promise.all([
+      // Count total costumes
+      prisma.costume.count({
+        where: { sellerId: payload.userId }
+      }),
+      
+      // Count total sales (costumes with status 'sold')
+      prisma.costume.count({
+        where: { 
+          sellerId: payload.userId,
+          status: 'sold'
+        }
+      }),
+      
+      // Get reviews data for average rating
+      prisma.review.aggregate({
+        where: { revieweeId: payload.userId },
+        _avg: { rating: true },
+        _count: { rating: true }
+      })
+    ]);
+
     const stats = {
-      totalCostumes: 0,
-      totalSales: 0,
-      averageRating: 0,
-      totalReviews: 0,
+      totalCostumes: costumeCount,
+      totalSales: salesCount,
+      averageRating: reviewsData._avg.rating || 0,
+      totalReviews: reviewsData._count.rating || 0,
     };
 
     return NextResponse.json({

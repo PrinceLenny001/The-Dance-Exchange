@@ -24,6 +24,7 @@ const createPaymentIntentSchema = z.object({
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
+    console.log("Payment intent request body:", JSON.stringify(body, null, 2));
     const { amount, currency, items, shippingAddress } = createPaymentIntentSchema.parse(body);
 
     // Get user from headers (you would typically get this from JWT token)
