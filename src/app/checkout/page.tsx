@@ -13,6 +13,7 @@ import {
   Lock,
   CheckCircle
 } from "lucide-react";
+import StripeElements from "@/components/StripeElements";
 import Link from "next/link";
 import { toast } from "react-toastify";
 
@@ -26,12 +27,6 @@ interface ShippingAddress {
   country: string;
 }
 
-interface PaymentInfo {
-  cardNumber: string;
-  expiryDate: string;
-  cvv: string;
-  nameOnCard: string;
-}
 
 export default function CheckoutPage() {
   const { items, getTotalPrice, getItemCount, clearCart } = useCart();
@@ -48,12 +43,6 @@ export default function CheckoutPage() {
     state: "",
     zipCode: "",
     country: "US",
-  });
-  const [paymentInfo, setPaymentInfo] = useState<PaymentInfo>({
-    cardNumber: "",
-    expiryDate: "",
-    cvv: "",
-    nameOnCard: "",
   });
 
   useEffect(() => {
@@ -84,49 +73,46 @@ export default function CheckoutPage() {
     setCurrentStep(2);
   };
 
-  const handlePaymentSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsProcessing(true);
-
+  const handlePaymentSuccess = async (paymentIntentId: string) => {
     try {
-      // Simulate payment processing
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Here you would integrate with Stripe
-      // For now, we'll just simulate success
-      toast.success("Payment successful! Your order has been placed.");
-      
-      // Clear cart and redirect to success page
-      clearCart();
-      router.push("/checkout/success");
+      // Process the order with the payment intent ID
+      const response = await fetch("/api/checkout", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-user-id": user?.id || "",
+        },
+        body: JSON.stringify({
+          items: items.map(item => ({
+            costumeId: item.costumeId,
+            price: item.price,
+            quantity: item.quantity,
+          })),
+          shippingAddress,
+          paymentMethod: "stripe",
+          paymentIntentId,
+        }),
+      });
+
+      if (response.ok) {
+        toast.success("Payment successful! Your order has been placed.");
+        clearCart();
+        router.push("/checkout/success");
+      } else {
+        const error = await response.json();
+        toast.error(error.error || "Order processing failed");
+      }
     } catch (error) {
-      toast.error("Payment failed. Please try again.");
-      setIsProcessing(false);
+      console.error("Order processing error:", error);
+      toast.error("Order processing failed. Please contact support.");
     }
   };
 
-  const formatCardNumber = (value: string) => {
-    const v = value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
-    const matches = v.match(/\d{4,16}/g);
-    const match = matches && matches[0] || '';
-    const parts = [];
-    for (let i = 0, len = match.length; i < len; i += 4) {
-      parts.push(match.substring(i, i + 4));
-    }
-    if (parts.length) {
-      return parts.join(' ');
-    } else {
-      return v;
-    }
+  const handlePaymentError = (error: string) => {
+    toast.error(error);
+    setIsProcessing(false);
   };
 
-  const formatExpiryDate = (value: string) => {
-    const v = value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
-    if (v.length >= 2) {
-      return v.substring(0, 2) + '/' + v.substring(2, 4);
-    }
-    return v;
-  };
 
   if (!user || items.length === 0) {
     return null;
@@ -290,113 +276,22 @@ export default function CheckoutPage() {
               )}
 
               {currentStep === 2 && (
-                <form onSubmit={handlePaymentSubmit} className="bg-white dark:bg-neutral-800 rounded-2xl shadow-lg p-6">
+                <div className="bg-white dark:bg-neutral-800 rounded-2xl shadow-lg p-6">
                   <h2 className="text-xl font-semibold text-neutral-900 dark:text-white mb-6 flex items-center gap-2">
                     <CreditCard className="h-5 w-5" />
                     Payment Information
                   </h2>
 
-                  <div className="mb-4">
-                    <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
-                      Name on Card *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={paymentInfo.nameOnCard}
-                      onChange={(e) => setPaymentInfo(prev => ({ ...prev, nameOnCard: e.target.value }))}
-                      className="w-full px-3 py-2 border border-neutral-200 dark:border-neutral-700 rounded-lg bg-white dark:bg-neutral-800 text-neutral-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brandBlue-500"
-                    />
-                  </div>
-
-                  <div className="mb-4">
-                    <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
-                      Card Number *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={paymentInfo.cardNumber}
-                      onChange={(e) => setPaymentInfo(prev => ({ ...prev, cardNumber: formatCardNumber(e.target.value) }))}
-                      placeholder="4242 4242 4242 4242"
-                      maxLength={19}
-                      className="w-full px-3 py-2 border border-neutral-200 dark:border-neutral-700 rounded-lg bg-white dark:bg-neutral-800 text-neutral-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brandBlue-500"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4 mb-4">
-                    <div>
-                      <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
-                        Expiry Date *
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        value={paymentInfo.expiryDate}
-                        onChange={(e) => setPaymentInfo(prev => ({ ...prev, expiryDate: formatExpiryDate(e.target.value) }))}
-                        placeholder="MM/YY"
-                        maxLength={5}
-                        className="w-full px-3 py-2 border border-neutral-200 dark:border-neutral-700 rounded-lg bg-white dark:bg-neutral-800 text-neutral-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brandBlue-500"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
-                        CVV *
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        value={paymentInfo.cvv}
-                        onChange={(e) => setPaymentInfo(prev => ({ ...prev, cvv: e.target.value.replace(/\D/g, '') }))}
-                        placeholder="123"
-                        maxLength={4}
-                        className="w-full px-3 py-2 border border-neutral-200 dark:border-neutral-700 rounded-lg bg-white dark:bg-neutral-800 text-neutral-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brandBlue-500"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-2 text-sm text-neutral-500 dark:text-neutral-400 mb-4">
-                    <Lock className="h-4 w-4" />
-                    <span>Your payment information is secure and encrypted</span>
-                  </div>
-                  
-                  <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 mb-6">
-                    <div className="flex items-start gap-2">
-                      <div className="w-5 h-5 text-yellow-600 dark:text-yellow-400 mt-0.5">
-                        ⚠️
-                      </div>
-                      <div className="text-sm">
-                        <p className="text-yellow-800 dark:text-yellow-200 font-medium mb-1">
-                          Development Mode Notice
-                        </p>
-                        <p className="text-yellow-700 dark:text-yellow-300">
-                          In development mode, you may see browser warnings about secure connections. 
-                          This is normal for local development. In production, all payments are processed securely via HTTPS.
-                        </p>
-                        <p className="text-yellow-700 dark:text-yellow-300 mt-2">
-                          <strong>For testing:</strong> Use test card numbers like 4242 4242 4242 4242 with any future expiry date and any 3-digit CVV.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex gap-4">
-                    <button
-                      type="button"
-                      onClick={() => setCurrentStep(1)}
-                      className="flex-1 px-4 py-3 border border-neutral-200 dark:border-neutral-700 rounded-lg bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-700 transition-all"
-                    >
-                      Back to Shipping
-                    </button>
-                    <button
-                      type="submit"
-                      disabled={isProcessing}
-                      className="flex-1 bg-gradient-to-r from-brandBlue-500 to-brandBlue-600 hover:from-brandBlue-600 hover:to-brandBlue-700 text-white py-3 rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {isProcessing ? "Processing..." : "Complete Order"}
-                    </button>
-                  </div>
-                </form>
+                  <StripeElements
+                    onPaymentSuccess={handlePaymentSuccess}
+                    onPaymentError={handlePaymentError}
+                    isProcessing={isProcessing}
+                    setIsProcessing={setIsProcessing}
+                    totalAmount={calculateTotal()}
+                    shippingAddress={shippingAddress}
+                    items={items}
+                  />
+                </div>
               )}
             </div>
 

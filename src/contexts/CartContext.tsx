@@ -5,11 +5,13 @@ import { toast } from "react-toastify";
 
 interface CartItem {
   id: string;
+  costumeId: string;
   title: string;
   price: number;
   size: string;
   condition: string;
   imageUrl: string;
+  quantity: number;
   seller: {
     id: string;
     username: string;
@@ -50,7 +52,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const addItem = (item: Omit<CartItem, "id">) => {
     const cartItem: CartItem = {
       ...item,
-      id: `${item.seller.id}-${item.title}-${item.size}-${Date.now()}`,
+      quantity: item.quantity || 1,
+      id: `${item.costumeId}-${item.seller.id}-${item.title}-${item.size}-${Date.now()}`,
     };
 
     setItems(prev => {

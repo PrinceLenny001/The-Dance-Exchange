@@ -174,11 +174,13 @@ function CostumeDetailContent() {
     }
 
     addItem({
+      costumeId: costume.id,
       title: costume.title,
       price: Number(costume.price),
       size: costume.size,
       condition: costume.condition,
       imageUrl: costume.images.find(img => img.isPrimary)?.imageUrl || costume.images[0]?.imageUrl || "",
+      quantity: 1,
       seller: {
         id: costume.seller.id,
         username: costume.seller.username,
