@@ -27,6 +27,60 @@ model User {
   isAdmin               Boolean   @default(false)
   accounts              Account[]
   sessions              Session[]
+  costumes              Costume[]
+}
+
+model Costume {
+  id          String        @id @default(cuid())
+  sellerId    String
+  title       String
+  description String
+  price       Decimal       @db.Decimal(10, 2)
+  size        String
+  condition   CostumeCondition
+  status      CostumeStatus @default(available)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  seller      User          @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  images      CostumeImage[]
+  categories  CostumeToCategory[]
+}
+
+model CostumeCategory {
+  id        String              @id @default(cuid())
+  name      String              @unique
+  costumes  CostumeToCategory[]
+}
+
+model CostumeToCategory {
+  costumeId  String
+  categoryId String
+  costume    Costume         @relation(fields: [costumeId], references: [id], onDelete: Cascade)
+  category   CostumeCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@id([costumeId, categoryId])
+}
+
+model CostumeImage {
+  id         String  @id @default(cuid())
+  costumeId  String
+  imageUrl   String
+  isPrimary  Boolean @default(false)
+  costume    Costume @relation(fields: [costumeId], references: [id], onDelete: Cascade)
+
+  @@index([costumeId])
+}
+
+enum CostumeCondition {
+  NEW
+  LIKE_NEW
+  GOOD
+  FAIR
+}
+
+enum CostumeStatus {
+  available
+  sold
 }
 
 model Account {
