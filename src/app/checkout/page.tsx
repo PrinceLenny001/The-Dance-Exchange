@@ -318,7 +318,7 @@ export default function CheckoutPage() {
                       required
                       value={paymentInfo.cardNumber}
                       onChange={(e) => setPaymentInfo(prev => ({ ...prev, cardNumber: formatCardNumber(e.target.value) }))}
-                      placeholder="1234 5678 9012 3456"
+                      placeholder="4242 4242 4242 4242"
                       maxLength={19}
                       className="w-full px-3 py-2 border border-neutral-200 dark:border-neutral-700 rounded-lg bg-white dark:bg-neutral-800 text-neutral-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brandBlue-500"
                     />
@@ -355,9 +355,29 @@ export default function CheckoutPage() {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2 text-sm text-neutral-500 dark:text-neutral-400 mb-6">
+                  <div className="flex items-center gap-2 text-sm text-neutral-500 dark:text-neutral-400 mb-4">
                     <Lock className="h-4 w-4" />
                     <span>Your payment information is secure and encrypted</span>
+                  </div>
+                  
+                  <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 mb-6">
+                    <div className="flex items-start gap-2">
+                      <div className="w-5 h-5 text-yellow-600 dark:text-yellow-400 mt-0.5">
+                        ⚠️
+                      </div>
+                      <div className="text-sm">
+                        <p className="text-yellow-800 dark:text-yellow-200 font-medium mb-1">
+                          Development Mode Notice
+                        </p>
+                        <p className="text-yellow-700 dark:text-yellow-300">
+                          In development mode, you may see browser warnings about secure connections. 
+                          This is normal for local development. In production, all payments are processed securely via HTTPS.
+                        </p>
+                        <p className="text-yellow-700 dark:text-yellow-300 mt-2">
+                          <strong>For testing:</strong> Use test card numbers like 4242 4242 4242 4242 with any future expiry date and any 3-digit CVV.
+                        </p>
+                      </div>
+                    </div>
                   </div>
 
                   <div className="flex gap-4">

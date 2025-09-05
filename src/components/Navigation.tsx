@@ -12,7 +12,8 @@ import {
   Search, 
   Package,
   Heart,
-  LogOut
+  LogOut,
+  ShoppingBag
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
@@ -114,6 +115,13 @@ export default function Navigation() {
                       <Heart className="h-4 w-4 mr-3" />
                       Wishlist
                     </Link>
+                    <Link
+                      href="/orders"
+                      className="flex items-center px-4 py-2 text-sm text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-700"
+                    >
+                      <ShoppingBag className="h-4 w-4 mr-3" />
+                      My Orders
+                    </Link>
                     <hr className="my-1 border-neutral-200 dark:border-neutral-700" />
                     <button
                       onClick={handleLogout}
@@ -192,6 +200,13 @@ export default function Navigation() {
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     Wishlist
+                  </Link>
+                  <Link
+                    href="/orders"
+                    className="block px-4 py-2 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    My Orders
                   </Link>
                   <button
                     onClick={() => {
