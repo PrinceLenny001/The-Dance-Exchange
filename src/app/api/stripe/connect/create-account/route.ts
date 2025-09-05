@@ -52,10 +52,11 @@ export async function POST(request: NextRequest) {
     });
 
     // Create account link for onboarding
+    const baseUrl = process.env.NEXTAUTH_URL || 'https://secondact.vercel.app';
     const accountLink = await createAccountLink(
       account.id,
-      `${process.env.NEXTAUTH_URL}/dashboard/stripe/return`,
-      `${process.env.NEXTAUTH_URL}/dashboard/stripe/return`
+      `${baseUrl}/dashboard`,
+      `${baseUrl}/dashboard`
     );
 
     return NextResponse.json({
