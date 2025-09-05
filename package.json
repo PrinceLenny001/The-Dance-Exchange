@@ -13,6 +13,7 @@
     "test:coverage": "jest --coverage",
     "vercel-build": "prisma generate && next build",
     "postinstall": "prisma generate",
+    "migrate": "node scripts/migrate-production.js",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"
   },
