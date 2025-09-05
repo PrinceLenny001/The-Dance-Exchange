@@ -7,6 +7,7 @@ import ClientProvider from "@/components/ClientProvider";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import { ThemeAwareToast } from "@/components/theme/ThemeAwareToast";
 import { CartProvider } from "@/contexts/CartContext";
+import Navigation from "@/components/Navigation";
 
 export const metadata: Metadata = {
   title: "",
@@ -28,6 +29,7 @@ export default function RootLayout({
           <ClientProvider>
             <CartProvider>
               <TRPCReactProvider>
+                <Navigation />
                 {children}
                 <ThemeAwareToast />
               </TRPCReactProvider>
